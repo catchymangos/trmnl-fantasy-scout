@@ -1,0 +1,70 @@
+name: Fantasy scout
+
+on:
+  schedule:
+    # Every 30 min, roughly 10:00 to 21:30 Toronto time (cron is UTC). The script
+    # itself only sends inside the window before the day's first puck drop.
+    - cron: "7,37 0,1,14-23 * * *"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Send now, ignoring the pre-game window"
+        type: boolean
+        default: true
+      dry_run:
+        description: "Print the pick in the log instead of sending it"
+        type: boolean
+        default: true
+
+concurrency:
+  group: scout
+  cancel-in-progress: false
+
+jobs:
+  scout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Today's date (Toronto)
+        id: day
+        run: echo "date=$(TZ=America/Toronto date +%F)" >> "$GITHUB_OUTPUT"
+
+      - name: Already sent today?
+        id: sent
+        if: github.event_name == 'schedule'
+        uses: actions/cache/restore@v4
+        with:
+          path: .sent
+          key: scout-sent-${{ steps.day.outputs.date }}
+          lookup-only: true
+
+      - uses: actions/checkout@v4
+        if: steps.sent.outputs.cache-hit != 'true'
+
+      - uses: actions/setup-python@v5
+        if: steps.sent.outputs.cache-hit != 'true'
+        with:
+          python-version: "3.12"
+
+      - name: Run scout
+        id: run
+        if: steps.sent.outputs.cache-hit != 'true'
+        env:
+          TRMNL_WEBHOOK_URL: ${{ secrets.TRMNL_WEBHOOK_URL }}
+          ESPN_LEAGUE_ID: ${{ secrets.ESPN_LEAGUE_ID }}
+          ESPN_TEAM_ID: ${{ secrets.ESPN_TEAM_ID }}
+          ESPN_S2: ${{ secrets.ESPN_S2 }}
+          ESPN_SWID: ${{ secrets.ESPN_SWID }}
+          FORCE: ${{ (github.event_name == 'workflow_dispatch' && inputs.force) && '1' || '0' }}
+          DRY_RUN: ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run) && '1' || '0' }}
+        run: python -m scout.main
+
+      - name: Mark today as sent
+        if: steps.run.outputs.sent == 'true' && github.event_name == 'schedule'
+        run: mkdir -p .sent && date > .sent/stamp
+
+      - uses: actions/cache/save@v4
+        if: steps.run.outputs.sent == 'true' && github.event_name == 'schedule'
+        with:
+          path: .sent
+          key: scout-sent-${{ steps.day.outputs.date }}
