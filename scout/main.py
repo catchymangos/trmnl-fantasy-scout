@@ -263,6 +263,15 @@ def run():
         log("Top 5 considered:")
         for c in candidates[:5]:
             log(f"  {c['heat']:>3}  {c['label']:<9} {c['p']['name']} ({c['p']['team']})  value {c['value']:.2f}")
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        # Surface the result as a run annotation so it is readable without the raw logs.
+        top = "\n".join(f"{c['heat']:>3} {c['label']:<9} {c['p']['name']} ({c['p']['team']}) "
+                        f"value {c['value']:.2f}" for c in candidates[:8])
+        diag = (f"skaters {len(cur)} | last season {len(prev)} | recent {len(recent_rows)} | "
+                f"moneypuck {len(mp)} | teams GA {len(ga)} | espn {'yes' if league else 'no'} | "
+                f"first puck in {lead:.0f} min")
+        note = f"{diag}\n\nTop considered:\n{top}\n\nPayload:\n{json.dumps(payload, indent=1)}"
+        print("::notice title=Scout pick::" + note.replace("%", "%25").replace("\r", "").replace("\n", "%0A"))
     if dry:
         print(json.dumps(payload, indent=2))
         return
