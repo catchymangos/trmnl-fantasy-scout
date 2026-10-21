@@ -96,6 +96,7 @@ nhl.edge = lambda pid, s: {"zoneTimeDetails": {"offensiveZonePctg": .45, "offens
                            "skatingSpeed": {"speedMax": {"imperial": 22.4, "percentile": .82}},
                            "topShotSpeed": {"imperial": 88, "percentile": .7}}
 moneypuck.load = lambda y: MP
+nhl.headshot = lambda pid: "https://assets.nhle.com/mugs/nhl/20262027/EDM/8481617.png"
 espn.load = fake_espn
 
 

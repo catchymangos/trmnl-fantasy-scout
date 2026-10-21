@@ -61,6 +61,14 @@ def team_abbrevs():
     return {t["fullName"]: t["triCode"] for t in data.get("data", [])}
 
 
+def headshot(player_id):
+    """Official NHL headshot URL for a player (None if unavailable)."""
+    try:
+        return get_json(f"{WEB}/player/{player_id}/landing").get("headshot")
+    except Exception:
+        return None
+
+
 def edge(player_id, season_id):
     """NHL EDGE puck/player tracking for one skater (None if unavailable)."""
     try:

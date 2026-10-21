@@ -13,7 +13,7 @@ from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 from . import config as C
-from . import espn, moneypuck, nhl
+from . import espn, moneypuck, nhl, story
 from .http import post_json
 from .model import (finishing, group, mmss, percentile, project,
                     role_signals, week_gain, per_game)
@@ -227,7 +227,8 @@ def run():
                 rs.insert(0, f"{gms} games left this week" + (f", {empty} into empty slots" if empty else ""))
         if v <= 0:
             continue
-        consider(p, label, action, v, rs, {"drop": drop, "week_games": gms, "waivers": waivers})
+        consider(p, label, action, v, rs, {"drop": drop, "week_games": gms, "waivers": waivers,
+                                             "days": days, "empty": empty})
 
     # ---- rostered elsewhere: BUY LOW (trade target)
     if league and mine:
@@ -256,7 +257,17 @@ def run():
 
     candidates.sort(key=lambda c: c["value"], reverse=True)
     pick = candidates[0] if candidates else None
-    payload = build_payload(pick, now, today, team_games, mp, season, ixg_pool, ixg60)
+    ga_rank = {t: i + 1 for i, t in enumerate(sorted(ga, key=lambda t: -ga[t]))}
+    pools = {}
+    for name, fn in (("pool_ixg", lambda p, m: story.ixg60(m)),
+                     ("pool_hd", lambda p, m: m["all"]["hd_shots"] / p["proj"]["cur"]["gp"] if m.get("all") else None),
+                     ("pool_blk", lambda p, m: p["proj"]["cur"]["blocks"]),
+                     ("pool_hit", lambda p, m: p["proj"]["cur"]["hits"])):
+        pools[name] = {g: story._pool(players, mp, g, fn) for g in ("F", "D")}
+    ctx = {"mp": mp, "recent": recent_rows, "players": players, "cur": cur,
+           "team_games": team_games, "this_week": this_week, "ga": ga, "ga_avg": ga_avg,
+           "ga_rank": ga_rank, "season": season, **pools}
+    payload = build_payload(pick, now, today, ctx)
     body = json.dumps(payload, separators=(",", ":"))
     log(f"Payload {len(body.encode())} bytes")
     if candidates:
@@ -291,64 +302,31 @@ def short(name):
     return f"{parts[0][0]}. {' '.join(parts[1:])}" if len(parts) > 1 else name
 
 
-def build_payload(pick, now, today, team_games, mp, season, ixg_pool, ixg60):
-    stamp = now.astimezone(TZ).strftime("%a %b %-d, %-I:%M %p")
+def build_payload(pick, now, today, ctx):
+    stamp = now.astimezone(TZ).strftime("%a %b %-d \u00b7 %-I:%M %p").upper()
     if not pick or pick["heat"] < C.HEAT_MIN:
         near = f"Closest: {pick['p']['name']} ({pick['label'].lower()}, heat {pick['heat']})" if pick else ""
-        return {"merge_variables": {"mode": "hold", "updated": stamp,
-                                    "headline": "Hold. No move clears the bar today.", "near": near}}
+        return {"merge_variables": {"mode": "hold", "updated": stamp, "near": near}}
     p = pick["p"]
     c = p["proj"]["cur"]
-    g = team_games.get(today.isoformat(), {}).get(p["team"])
+    g = ctx["team_games"].get(today.isoformat(), {}).get(p["team"])
     tonight = ""
     if g:
-        t = g[2].astimezone(TZ).strftime("%-I:%M")
-        tonight = f"{'vs' if g[1] else '@'} {g[0]} {t}"
-
-    stats = []
-    m = mp.get(p["pid"]) or {}
-    if m.get("all"):
-        v = ixg60(m)
-        if v is not None:
-            stats.append({"l": "ixG/60", "v": f"{v:.2f}", "p": percentile(ixg_pool[p["grp"]], v)})
-        if p["grp"] == "F":
-            stats.append({"l": "HD shots/g", "v": f"{m['all']['hd_shots'] / c['gp']:.1f}", "p": None})
-        diff = m["all"]["goals"] - m["all"]["ixg"]
-        stats.append({"l": "G - xG", "v": f"{diff:+.1f}", "p": None})
-    if m.get("5on5") and m["5on5"]["xgf_pct"]:
-        stats.append({"l": "xGF% 5v5", "v": f"{m['5on5']['xgf_pct'] * 100:.0f}%", "p": None})
-    stats.append({"l": "PP TOI/g", "v": mmss(c["pp_toi"]), "p": None})
-    if p["grp"] == "D":
-        stats.append({"l": "Blk/g", "v": f"{c['blocks']:.1f}", "p": None})
-    e = nhl.edge(p["pid"], season)
-    if e:
-        z = e.get("zoneTimeDetails") or {}
-        if z.get("offensiveZonePctg") is not None:
-            stats.append({"l": "OZ time", "v": f"{z['offensiveZonePctg'] * 100:.0f}%",
-                          "p": round(100 * (z.get("offensiveZonePercentile") or 0))})
-        sp = ((e.get("skatingSpeed") or {}).get("speedMax") or {})
-        if sp.get("imperial"):
-            stats.append({"l": "Top speed", "v": f"{sp['imperial']:.1f} mph",
-                          "p": round(100 * (sp.get("percentile") or 0))})
-        sh = e.get("topShotSpeed") or {}
-        if sh.get("imperial") and len(stats) < 8:
-            stats.append({"l": "Shot speed", "v": f"{sh['imperial']:.0f} mph",
-                          "p": round(100 * (sh.get("percentile") or 0))})
-
-    why = "; ".join(pick["reasons"][:3]) or "Best projected gain for your lineup."
-    if len(why) > 170:
-        why = why[:167].rsplit(" ", 1)[0] + "..."
+        tonight = f"{'vs' if g[1] else '@'} {g[0]} {g[2].astimezone(TZ).strftime('%-I:%M')}"
+    ctx = dict(ctx, edge=nhl.edge(p["pid"], ctx["season"]))
+    claims = story.build(pick, ctx)
     drop = pick.get("drop")
+    goals = int(round(c["g"] * c["gp"]))
+    assists = int(round(c["a"] * c["gp"]))
     mv = {
         "mode": "pick", "updated": stamp,
         "label": pick["label"], "action": pick["action"], "heat": pick["heat"],
         "name": p["name"], "team": p["team"], "pos": p["pos"], "tonight": tonight,
         "fpg": f"{p['proj']['fpg']:.2f}",
-        "line": f"{c['gp']} GP  {int(round(c['g'] * c['gp']))}G {int(round(c['a'] * c['gp']))}A  "
-                f"{c['shots']:.1f} S/g  TOI {mmss(c['toi'])}",
-        "why": why,
-        "drop": f"Drop {short(drop['name'])} ({drop['proj']['fpg']:.2f}/g)" if drop else "",
-        "stats": stats[:8],
+        "line": f"{c['gp']} GP \u00b7 {goals}G {assists}A \u00b7 {c['shots']:.1f} shots/g \u00b7 {mmss(c['toi'])} TOI",
+        "claims": claims,
+        "drop": f"Drop {short(drop['name'])} ({drop['proj']['fpg']:.2f} fpts/g)" if drop else "",
+        "img": nhl.headshot(p["pid"]) or "",
     }
     if pick.get("waivers"):
         mv["action"] += " (waivers, clears tomorrow)"
