@@ -1,0 +1,52 @@
+{% comment %} Variant A "Index card": all white, hairlines, three columns, one stat per reason. {% endcomment %}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500&display=swap">
+<style>
+.ix{position:absolute;inset:0;background:#fff;color:#000;font-family:'IBM Plex Sans',sans-serif;padding:44px 56px 36px;display:flex;flex-direction:column}
+.ix .m{font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:#444}
+.ix .top{display:flex;justify-content:space-between;padding-bottom:14px;border-bottom:1.5px solid #000}
+.ix .hero{display:flex;align-items:center;gap:30px;margin-top:34px}
+.ix .face{width:148px;height:148px;border-radius:50%;background:#ddd;overflow:hidden;flex-shrink:0;display:flex;align-items:flex-end;justify-content:center}
+.ix .face img{width:168px;filter:grayscale(1)}
+.ix .who{flex:1;min-width:0}
+.ix .name{font-family:'Archivo',sans-serif;font-weight:600;font-size:60px;line-height:1;letter-spacing:-.01em;margin:8px 0 10px}
+.ix .sub{font-size:20px;color:#333}
+.ix .heat{text-align:right;flex-shrink:0}
+.ix .heat b{display:block;font-family:'Archivo',sans-serif;font-weight:500;font-size:84px;line-height:.9}
+.ix .ticks{display:flex;gap:3px;justify-content:flex-end;margin:10px 0 6px}
+.ix .ticks i{width:12px;height:4px;background:#ccc}
+.ix .ticks i.on{background:#000}
+.ix .cols{display:grid;grid-template-columns:repeat(3,1fr);margin-top:auto;border-top:1.5px solid #000}
+.ix .col{padding:22px 24px 0 0;display:flex;flex-direction:column;gap:10px}
+.ix .col+.col{padding-left:24px;border-left:1.5px solid #000}
+.ix .col svg{width:30px;height:30px;fill:none;stroke:#000;stroke-width:1.75;stroke-linecap:square}
+.ix .ch{font-size:19px;line-height:1.3;min-height:74px}
+.ix .v{font-family:'Archivo',sans-serif;font-weight:500;font-size:44px;line-height:1;margin-top:4px}
+.ix .foot{display:flex;justify-content:space-between;margin-top:26px;font-size:17px;color:#333}
+</style>
+<div class="ix">
+  <div class="top m"><span>Fantasy Scout</span><span>{{ updated }}</span></div>
+  <div class="hero">
+    <div class="face">{% if img != '' %}<img class="image image-dither" src="{{ img }}" alt="">{% endif %}</div>
+    <div class="who">
+      <div class="m">{{ label }} · {{ action }}</div>
+      <div class="name">{{ name }}</div>
+      <div class="sub">{{ team }} {{ pos }}{% if tonight != '' %} · Tonight {{ tonight }}{% endif %} · {{ fpg }} pts/g proj</div>
+    </div>
+    <div class="heat">
+      <b>{{ heat }}</b>
+      {% assign lit = heat | divided_by: 10 %}<div class="ticks">{% for i in (1..10) %}<i class="{% if i <= lit %}on{% endif %}"></i>{% endfor %}</div>
+      <span class="m">Heat</span>
+    </div>
+  </div>
+  <div class="cols">
+    {% for c in claims %}{% assign e = c.ev | first %}
+    <div class="col">
+      <div style="display:flex;align-items:center;gap:10px"><svg viewBox="0 0 24 24">{{ c.i }}</svg><span class="m">{{ c.s }}</span></div>
+      <div class="ch">{{ c.h }}</div>
+      <div class="v">{{ e.v }}</div>
+      <div class="m" style="font-size:11px">{{ e.l }}{% if e.p %} · {{ e.p }}th pct{% elsif e.n %} · {{ e.n }}{% endif %}</div>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="foot"><span>{{ drop }}</span><span class="m" style="font-size:11px">{{ line }}</span></div>
+</div>

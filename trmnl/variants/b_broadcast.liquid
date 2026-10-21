@@ -1,0 +1,42 @@
+{% comment %} Variant B "Broadcast": headshot panel on the right, a stat strip, one black bar at the bottom. {% endcomment %}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500&display=swap">
+<style>
+.bc{position:absolute;inset:0;background:#fff;color:#000;font-family:'IBM Plex Sans',sans-serif;display:flex;flex-direction:column}
+.bc .m{font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:#444}
+.bc .s{font-family:'Saira Semi Condensed',sans-serif}
+.bc .main{flex:1;display:flex;min-height:0}
+.bc .left{flex:1;padding:44px 0 0 56px;display:flex;flex-direction:column;min-width:0}
+.bc .tag{align-self:flex-start;border:1.5px solid #000;padding:4px 12px;margin-top:26px}
+.bc .name{font-weight:700;font-size:72px;line-height:.95;text-transform:uppercase;margin-top:16px}
+.bc .sub{font-size:19px;color:#333;margin-top:10px}
+.bc .verdict{font-size:25px;line-height:1.32;margin-top:26px;max-width:560px}
+.bc .strip{display:flex;gap:34px;margin-top:auto;padding:22px 0 28px}
+.bc .st{display:flex;gap:12px;align-items:flex-start}
+.bc .st svg{width:28px;height:28px;fill:none;stroke:#000;stroke-width:1.75;stroke-linecap:square;margin-top:6px}
+.bc .st b{display:block;font-weight:600;font-size:40px;line-height:1}
+.bc .right{width:330px;flex-shrink:0;background:#e6e6e6;margin-top:120px !important;display:flex;align-items:flex-end;justify-content:center;overflow:hidden;margin:44px 44px 0 30px}
+.bc .right img{width:470px;max-width:none;filter:grayscale(1) contrast(1.1);margin-bottom:-6px}
+.bc .bar{height:70px;background:#000;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 56px}
+.bc .bar .s{font-weight:600;font-size:30px;letter-spacing:.03em;text-transform:uppercase}
+</style>
+<div class="bc">
+  <div class="main">
+    <div class="left">
+      <div class="m" style="display:flex;justify-content:space-between;padding-right:0"><span>Fantasy Scout · {{ updated }}</span></div>
+      <span class="tag m" style="color:#000">{{ label }}</span>
+      <div class="name s">{{ name }}</div>
+      <div class="sub">{{ team }} {{ pos }}{% if tonight != '' %} · Tonight {{ tonight }}{% endif %} · {{ fpg }} pts/g proj</div>
+      {% assign lead = claims | first %}<div class="verdict">{{ lead.h }}.</div>
+      <div class="strip">
+        {% for c in claims %}{% assign e = c.ev | first %}
+        <div class="st"><svg viewBox="0 0 24 24">{{ c.i }}</svg><div><b class="s">{{ e.v }}</b><span class="m" style="font-size:11px">{{ e.l }}</span></div></div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="right">{% if img != '' %}<img class="image image-dither" src="{{ img }}" alt="">{% endif %}</div>
+  </div>
+  <div class="bar">
+    <span class="s">{{ action }}{% if drop != '' %}<span style="font-weight:500;color:#bbb"> · {{ drop }}</span>{% endif %}</span>
+    <span class="s">Heat {{ heat }}</span>
+  </div>
+</div>
