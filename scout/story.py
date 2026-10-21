@@ -14,6 +14,18 @@ LEAD = {
     "STASH": ["RETURN", "DEPLOYMENT", "CHANCES"],
 }
 
+# One icon family: 24px grid, 2.25 stroke, square caps, no fills except dots.
+ICONS = {
+    "SCHEDULE": '<rect x="3.5" y="5.5" width="17" height="15"/><path d="M3.5 10.5h17M8 3v5M16 3v5"/><path d="M7.5 14.5h2M11 14.5h2M14.5 14.5h2M7.5 17.5h2"/>',
+    "DEPLOYMENT": '<circle cx="12" cy="14" r="7"/><path d="M12 14V10M9.5 3h5M12 3v4M18 7.5l1.5-1.5"/>',
+    "CHANCES": '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><path d="M12 11v2M11 12h2"/>',
+    "FLOOR": '<path d="M12 3l8 3v6c0 4.5-3.5 7.8-8 9-4.5-1.2-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/>',
+    "LUCK": '<rect x="4" y="4" width="16" height="16"/><path d="M8.5 8.5h.01M15.5 8.5h.01M12 12h.01M8.5 15.5h.01M15.5 15.5h.01" stroke-width="3"/>',
+    "RETURN": '<path d="M9.5 3.5h5v6h6v5h-6v6h-5v-6h-6v-5h6z"/>',
+}
+SHORT = {"SCHEDULE": "SCHED", "DEPLOYMENT": "ROLE", "CHANCES": "CHANCES",
+         "FLOOR": "FLOOR", "LUCK": "LUCK", "RETURN": "RETURN"}
+
 
 def _pool(players, mp, grp, fn):
     out = []
@@ -149,4 +161,8 @@ def build(pick, ctx):
     order = LEAD.get(label, list(claims))
     lead = [claims[k][1] for k in order[:1] if k in claims]
     rest = sorted((v for k, v in claims.items() if k not in order[:1]), key=lambda x: -x[0])
-    return (lead + [v[1] for v in rest])[:3]
+    out = (lead + [v[1] for v in rest])[:3]
+    for c in out:
+        c["i"] = ICONS.get(c["k"], "")
+        c["s"] = SHORT.get(c["k"], c["k"])
+    return out

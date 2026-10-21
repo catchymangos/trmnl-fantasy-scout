@@ -15,7 +15,7 @@ from zoneinfo import ZoneInfo
 from . import config as C
 from . import espn, moneypuck, nhl, story
 from .http import post_json
-from .model import (finishing, group, mmss, percentile, project,
+from .model import (finishing, group, percentile, project,
                     role_signals, week_gain, per_game)
 
 TZ = ZoneInfo(C.TIMEZONE)
@@ -326,9 +326,9 @@ def build_payload(pick, now, today, ctx):
         "label": pick["label"], "action": pick["action"], "heat": pick["heat"],
         "name": p["name"], "team": p["team"], "pos": p["pos"], "tonight": tonight,
         "fpg": f"{p['proj']['fpg']:.2f}",
-        "line": f"{c['gp']} GP \u00b7 {goals}G {assists}A \u00b7 {c['shots']:.1f} shots/g \u00b7 {mmss(c['toi'])} TOI",
+        "line": f"{c['gp']} GP \u00b7 {goals}G {assists}A \u00b7 {c['shots']:.1f} S/G",
         "claims": claims,
-        "drop": f"Drop {short(drop['name'])} ({drop['proj']['fpg']:.2f} fpts/g)" if drop else "",
+        "drop": f"Drop {short(drop['name'])} \u00b7 {drop['proj']['fpg']:.2f}/g" if drop else "",
         "img": nhl.headshot(p["pid"]) or "",
     }
     if pick.get("waivers"):
