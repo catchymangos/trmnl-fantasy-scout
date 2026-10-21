@@ -12,6 +12,7 @@ from .http import get_json
 BASE = "https://lm-api-reads.fantasy.espn.com/apis/v3/games/fhl/seasons/{year}/segments/0/leagues/{league}"
 POS = {1: "C", 2: "L", 3: "R", 4: "D", 5: "G"}
 IR_SLOTS = {8}  # ESPN hockey lineup slot for injured reserve
+INFO = ""
 
 
 def norm(name):
@@ -38,6 +39,20 @@ def load(year, league_id, team_id, espn_s2, swid):
     cookies = {"Cookie": f"espn_s2={espn_s2}; SWID={swid}"}
     league = get_json(url, params=[("view", "mRoster"), ("view", "mTeam")], headers=cookies)
     players, teams = {}, {}
+    if not team_id:
+        # Find your team from your SWID: ESPN lists owners and co-managers on each team.
+        want = swid.strip().upper()
+        for t in league.get("teams", []):
+            owners = [str(o).upper() for o in (t.get("owners") or [])]
+            if t.get("primaryOwner"):
+                owners.append(str(t["primaryOwner"]).upper())
+            if want in owners:
+                team_id = t.get("id")
+                break
+    global INFO
+    INFO = ("ESPN teams " + ", ".join(
+        f"{t.get('id')}={t.get('abbrev') or t.get('name')}" for t in league.get("teams", []))
+        + f" | yours: {team_id or 'not found'}")
     for t in league.get("teams", []):
         tid = t.get("id")
         teams[tid] = t.get("abbrev") or t.get("name") or f"Team {tid}"

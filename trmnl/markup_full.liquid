@@ -1,104 +1,93 @@
-{% comment %} Fantasy Scout :: TRMNL X (1040x780). Scouting-card layout, one move per day. mode = pick | hold.
-Type: Big Shoulders Display is this plugin's own voice; IBM Plex Mono / Plex Sans are the shared system layer used across the other plugins. {% endcomment %}
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@500;600&display=swap">
+{% comment %} Fantasy Scout :: TRMNL X (1040x780). Broadcast layout: story on the left; face and the move on the right; heat in the bar.
+Type: Saira Semi Condensed is this plugin's voice; IBM Plex Mono / Plex Sans are the shared layer across the other plugins. {% endcomment %}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500&display=swap">
 <style>
-.sc{position:absolute;inset:0;background:#fff;color:#000;font-family:'IBM Plex Sans',sans-serif;display:flex;overflow:hidden}
-.sc .d{font-family:'Big Shoulders Display',sans-serif;font-weight:900}
-.sc .m{font-family:'IBM Plex Mono',monospace;font-weight:600;letter-spacing:.12em}
-.sc .rail{width:340px;flex-shrink:0;background:#000;color:#fff;display:flex;flex-direction:column;align-items:center;position:relative}
-.sc .stripes{position:absolute;left:0;right:0;top:0;height:24px;background:repeating-linear-gradient(90deg,#fff 0 22px,#000 22px 34px)}
-.sc .disc{margin-top:48px;width:240px;height:240px;border-radius:50%;background:#bbb;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;border:6px solid #fff}
-.sc .disc img{width:270px;filter:grayscale(1) contrast(1.15)}
-.sc .disc .init{font-size:110px;color:#000;margin:auto}
-.sc .heat{margin-top:16px;font-size:132px;line-height:.82}
-.sc .ticks{display:flex;gap:4px;margin-top:10px}
-.sc .tick{width:20px;height:11px;border:2px solid #fff;box-sizing:border-box}
-.sc .tick.on{background:#fff}
-.sc .heatlbl{font-size:14px;margin-top:7px;letter-spacing:.3em}
-.sc .icons{display:flex;gap:16px;margin-top:22px;padding-top:16px;border-top:2px solid #fff}
-.sc .ic{display:flex;flex-direction:column;align-items:center;gap:6px;width:72px}
-.sc .ic svg{width:44px;height:44px;fill:none;stroke:#fff;stroke-width:2.25;stroke-linecap:square;stroke-linejoin:miter}
-.sc .ic span{font-size:11px;letter-spacing:.1em}
-.sc .stamp{margin-top:auto;margin-bottom:22px;background:#fff;color:#000;padding:6px 18px 4px;font-size:34px;letter-spacing:.08em}
-.sc .card{flex:1;min-width:0;display:flex;flex-direction:column;padding:28px 34px 20px}
-.sc .top{display:flex;justify-content:space-between;font-size:14px;color:#333}
-.sc .verb{font-size:36px;letter-spacing:.04em;text-transform:uppercase;margin-top:12px;line-height:1}
-.sc .name{text-transform:uppercase;line-height:.88;margin-top:2px}
-.sc .chips{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
-.sc .chip{border:2.5px solid #000;padding:3px 10px;font-size:14px}
-.sc .chip.inv{background:#000;color:#fff}
-.sc .claims{margin-top:16px;display:flex;flex-direction:column;gap:12px;flex:1;min-height:0}
-.sc .cl{display:flex;gap:16px;border-top:3px solid #000;padding-top:10px}
-.sc .ck{width:78px;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-start;gap:4px}
-.sc .ck svg{width:34px;height:34px;fill:none;stroke:#000;stroke-width:2.25;stroke-linecap:square;stroke-linejoin:miter}
-.sc .ck span{font-size:11px}
-.sc .cb{flex:1;min-width:0}
-.sc .ch{font-size:22px;line-height:1.2;font-weight:600}
-.sc .ev{display:flex;gap:26px;margin-top:6px}
-.sc .ev .v{font-size:34px;line-height:1}
-.sc .ev .l{font-size:11px;color:#333;margin-top:2px;text-transform:uppercase}
-.sc .ev .n{font-size:12px;color:#444;font-family:'IBM Plex Mono',monospace}
-.sc .pb{width:96px;height:6px;background:#ddd;margin-top:4px;position:relative}
-.sc .pb i{position:absolute;left:0;top:0;bottom:0;background:#000}
-.sc .drop{display:flex;justify-content:space-between;align-items:baseline;margin-top:10px}
-.sc .drop b{font-size:26px;letter-spacing:.02em;text-transform:uppercase;white-space:nowrap}
-.sc .foot{font-size:11px;color:#555;white-space:nowrap;margin-left:16px}
-.sc.hold{background:#000;color:#fff;flex-direction:column}
-.sc.hold .body{padding:44px 54px;display:flex;flex-direction:column;flex:1}
-.sc .big{font-size:240px;line-height:.8;text-transform:uppercase;margin-top:40px}
+.bc{position:absolute;inset:0;background:#fff;color:#000;font-family:'IBM Plex Sans',sans-serif;display:flex;flex-direction:column}
+.bc .m{font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:#444}
+.bc .s{font-family:'Saira Semi Condensed',sans-serif}
+.bc .main{flex:1;display:flex;min-height:0;padding:40px 44px 28px 56px;gap:40px}
+.bc .left{flex:1;display:flex;flex-direction:column;min-width:0}
+.bc .kick{display:flex;align-items:center;gap:12px;margin-top:22px}
+.bc .tag{border:1.5px solid #000;padding:4px 12px;color:#000}
+.bc .act{font-weight:600;font-size:22px;letter-spacing:.04em;text-transform:uppercase}
+.bc .name{font-weight:700;line-height:.95;text-transform:uppercase;margin-top:12px}
+.bc .sub{font-size:19px;color:#333;margin-top:10px}
+.bc .verdict{font-size:24px;line-height:1.34;margin-top:22px}
+.bc .strip{display:grid;grid-template-columns:repeat(3,1fr);margin-top:auto;border-top:1.5px solid #000}
+.bc .st{padding-top:16px;padding-right:12px}
+.bc .st svg{width:24px;height:24px;fill:none;stroke:#000;stroke-width:1.75;stroke-linecap:square}
+.bc .st b{display:block;font-weight:600;font-size:40px;line-height:1;margin-top:8px}
+.bc .st .n{font-size:12px;color:#555;margin-top:3px}
+.bc .right{width:320px;flex-shrink:0;display:flex;flex-direction:column;gap:18px}
+.bc .face{height:300px;background:#e6e6e6;display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
+.bc .face img{width:300px;transform:scale(1.35);transform-origin:bottom center}
+.bc .move{border:1.5px solid #000;padding:16px 18px 14px;margin-top:auto}
+.bc .row{display:flex;align-items:baseline;gap:12px;margin-top:10px}
+.bc .row .k{width:34px}
+.bc .row .who{flex:1;font-weight:600;font-size:24px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bc .row .v{font-weight:600;font-size:24px}
+.bc .row.out .who,.bc .row.out .v{color:#777}
+.bc .gain{display:flex;justify-content:space-between;align-items:baseline;border-top:1.5px solid #000;margin-top:12px;padding-top:10px}
+.bc .gain b{font-weight:700;font-size:34px;line-height:1}
+.bc .bar{height:64px;background:#000;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 56px}
+.bc .bar .m{color:#bbb}
+.bc .ticks{display:flex;gap:4px}
+.bc .ticks i{width:18px;height:10px;border:1.5px solid #fff;box-sizing:border-box}
+.bc .ticks i.on{background:#fff}
+.bc.hold .main{flex-direction:column;justify-content:center}
 </style>
 
 {% if mode == 'hold' %}
-<div class="sc hold">
-  <div class="stripes" style="position:static"></div>
-  <div class="body">
-    <div class="top m" style="color:#ccc"><span>FANTASY SCOUT</span><span>{{ updated }}</span></div>
-    <div class="big d">Hold</div>
-    <div style="font-size:32px;line-height:1.3;max-width:820px;color:#ddd;margin-top:22px">No move clears the bar today. Save your acquisitions.</div>
-    {% if near %}<div class="m" style="margin-top:auto;border-top:3px solid #fff;padding-top:14px;font-size:18px">{{ near }}</div>{% endif %}
+<div class="bc hold">
+  <div class="main">
+    <div class="m">Fantasy Scout · {{ updated }}</div>
+    <div class="name s" style="font-size:150px;margin-top:30px">Hold</div>
+    <div class="verdict" style="font-size:30px;max-width:760px">No move clears the bar today. Save your acquisitions.</div>
+    {% if near %}<div class="m" style="margin-top:40px">{{ near }}</div>{% endif %}
   </div>
+  <div class="bar"><span class="s" style="font-weight:600;font-size:24px">NOTHING WORTH A MOVE</span><span class="m">Fantasy Scout</span></div>
 </div>
 {% else %}
-<div class="sc">
-  <div class="rail">
-    <div class="stripes"></div>
-    <div class="disc">{% if img != '' %}<img class="image image-dither" src="{{ img }}" alt="">{% else %}<span class="init d">{{ name | slice: 0 }}</span>{% endif %}</div>
-    <div class="heat d">{{ heat }}</div>
-    {% assign lit = heat | divided_by: 10 %}
-    <div class="ticks">{% for i in (1..10) %}<div class="tick {% if i <= lit %}on{% endif %}"></div>{% endfor %}</div>
-    <div class="heatlbl m">HEAT</div>
-    <div class="icons">{% for c in claims %}<div class="ic"><svg viewBox="0 0 24 24">{{ c.i }}</svg><span class="m">{{ c.s }}</span></div>{% endfor %}</div>
-    <div class="stamp d">{{ label }}</div>
-  </div>
-  <div class="card">
-    <div class="top m"><span>FANTASY SCOUT</span><span>{{ updated }}</span></div>
-    <div class="verb d">{{ action }}</div>
-    <div class="name d" style="font-size:{% if name.size > 18 %}72px{% else %}88px{% endif %}">{{ name }}</div>
-    <div class="chips">
-      <span class="chip inv m">{{ team }} · {{ pos }}</span>
-      {% if tonight != '' %}<span class="chip m">TONIGHT {{ tonight }}</span>{% endif %}
-      <span class="chip m">{{ fpg }} FPTS/G PROJ</span>
-    </div>
-    <div class="claims">
-      {% for c in claims %}
-      <div class="cl">
-        <div class="ck"><svg viewBox="0 0 24 24">{{ c.i }}</svg><span class="m">{{ c.s }}</span></div>
-        <div class="cb">
-          <div class="ch">{{ c.h }}</div>
-          <div class="ev">
-            {% for e in c.ev %}
-            <div>
-              <div class="v d">{{ e.v }}</div>
-              <div class="l m">{{ e.l }}{% if e.p %} · {{ e.p }}TH PCT{% endif %}</div>
-              {% if e.p %}<div class="pb"><i style="width:{{ e.p }}%"></i></div>{% elsif e.n %}<div class="n">{{ e.n }}</div>{% endif %}
-            </div>
-            {% endfor %}
-          </div>
+<div class="bc">
+  <div class="main">
+    <div class="left">
+      <div class="m">Fantasy Scout · {{ updated }}</div>
+      <div class="kick"><span class="tag m">{{ label }}</span><span class="act s">{{ action }}</span></div>
+      <div class="name s" style="font-size:{% if name.size > 18 %}62px{% else %}74px{% endif %}">{{ name }}</div>
+      <div class="sub">{{ team }} {{ pos }}{% if tonight != '' %} · Tonight {{ tonight }}{% endif %}</div>
+      {% assign lead = claims | first %}<div class="verdict">{{ lead.h }}.</div>
+      <div class="strip">
+        {% for c in claims %}{% assign e = c.ev | first %}
+        <div class="st">
+          <div style="display:flex;align-items:center;gap:8px"><svg viewBox="0 0 24 24">{{ c.i }}</svg><span class="m" style="font-size:11px">{{ c.s }}</span></div>
+          <b class="s">{{ e.v }}</b>
+          <div class="m" style="font-size:11px;margin-top:4px">{{ e.l }}</div>
+          {% if e.p %}<div class="n">{{ e.p }}th percentile</div>{% elsif e.n %}<div class="n">{{ e.n }}</div>{% endif %}
         </div>
+        {% endfor %}
       </div>
-      {% endfor %}
     </div>
-    <div class="drop">{% if drop != '' %}<b class="d">{{ drop }}</b>{% endif %}<span class="foot m">{{ line }}</span></div>
+    <div class="right">
+      <div class="face">{% if img != '' %}<img class="image image-dither" src="{{ img }}" alt="">{% endif %}</div>
+      <div class="move">
+        <div class="m" style="color:#000">The move</div>
+        <div class="row"><span class="k m">In</span><span class="who s">{{ short }}</span><span class="v s">{{ fpg }}</span></div>
+        {% if drop != '' %}
+        <div class="row out"><span class="k m">Out</span><span class="who s">{{ drop }}</span><span class="v s">{{ drop_fpg }}</span></div>
+        <div class="gain"><span class="m">Fpts / game</span><b class="s">{{ gain }}</b></div>
+        {% else %}
+        <div class="gain"><span class="m">Proj fpts / game</span><b class="s">{{ fpg }}</b></div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="bar">
+    <div style="display:flex;align-items:center;gap:18px">
+      <span class="m">Heat</span>
+      <span class="s" style="font-weight:700;font-size:30px">{{ heat }}</span>
+      {% assign lit = heat | divided_by: 10 %}<div class="ticks">{% for i in (1..10) %}<i class="{% if i <= lit %}on{% endif %}"></i>{% endfor %}</div>
+    </div>
+    <span class="m">{{ line }}</span>
   </div>
 </div>
 {% endif %}

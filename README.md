@@ -46,7 +46,7 @@ Add these as repository secrets (Settings > Secrets and variables > Actions):
 |---|---|
 | `TRMNL_WEBHOOK_URL` | TRMNL > Plugins > Fantasy Scout > Webhook URL |
 | `ESPN_LEAGUE_ID` | The `leagueId=` number in your ESPN league URL |
-| `ESPN_TEAM_ID` | The `teamId=` number on your team page |
+| `ESPN_TEAM_ID` | Optional. Found automatically from your SWID cookie; set it only if detection fails |
 | `ESPN_S2`, `ESPN_SWID` | Cookies from fantasy.espn.com while signed in (browser dev tools > Application > Cookies) |
 
 Without the ESPN secrets it still runs, but compares against a generic replacement level

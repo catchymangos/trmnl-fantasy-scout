@@ -110,10 +110,10 @@ def run():
 
     # ESPN league (optional).
     league, teams = None, {}
-    if all(os.environ.get(k) for k in ("ESPN_LEAGUE_ID", "ESPN_TEAM_ID", "ESPN_S2", "ESPN_SWID")):
+    if all(os.environ.get(k) for k in ("ESPN_LEAGUE_ID", "ESPN_S2", "ESPN_SWID")):
         try:
             league, teams = espn.load(start_year + 1, os.environ["ESPN_LEAGUE_ID"],
-                                      int(os.environ["ESPN_TEAM_ID"]),
+                                      int(os.environ.get("ESPN_TEAM_ID") or 0),
                                       os.environ["ESPN_S2"], os.environ["ESPN_SWID"])
             log(f"  ESPN league loaded ({len(league)} names)")
         except Exception as e:  # noqa: BLE001
@@ -283,7 +283,7 @@ def run():
                         f"value {c['value']:.2f}" for c in candidates[:8])
         diag = (f"skaters {len(cur)} | last season {len(prev)} | recent {len(recent_rows)} | "
                 f"moneypuck {len(mp)} | teams GA {len(ga)} | espn {'yes' if league else 'no'} | "
-                f"first puck in {lead:.0f} min")
+                f"first puck in {lead:.0f} min | {espn.INFO}")
         note = f"{diag}\n\nTop considered:\n{top}\n\nPayload:\n{json.dumps(payload, indent=1)}"
         print("::notice title=Scout pick::" + note.replace("%", "%25").replace("\r", "").replace("\n", "%0A"))
     if dry:
@@ -328,7 +328,11 @@ def build_payload(pick, now, today, ctx):
         "fpg": f"{p['proj']['fpg']:.2f}",
         "line": f"{c['gp']} GP \u00b7 {goals}G {assists}A \u00b7 {c['shots']:.1f} S/G",
         "claims": claims,
-        "drop": f"Drop {short(drop['name'])} \u00b7 {drop['proj']['fpg']:.2f}/g" if drop else "",
+        "drop": short(drop["name"]) if drop else "",
+        "drop_fpg": f"{drop['proj']['fpg']:.2f}" if drop else "",
+        "gain": f"+{p['proj']['fpg'] - drop['proj']['fpg']:.2f}" if drop else "",
+        "short": short(p["name"]),
+        "drop_team": drop["team"] if drop else "",
         "img": nhl.headshot(p["pid"]) or "",
     }
     if pick.get("waivers"):
