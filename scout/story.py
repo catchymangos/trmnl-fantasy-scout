@@ -51,6 +51,8 @@ def build(pick, ctx):
         head = f"{len(opps)} game{'s' if len(opps) != 1 else ''} left this week"
         if soft:
             head += f", {len(soft)} vs bottom-10 defences ({', '.join(soft[:3])})"
+        if ga and sum(ga) / len(ga) < ctx["ga_avg"] * 0.95 and not soft:
+            head += ", against tighter defences"
         ev = []
         if ga:
             ev.append({"l": "Opp GA/g", "v": f"{sum(ga) / len(ga):.2f}", "p": None,

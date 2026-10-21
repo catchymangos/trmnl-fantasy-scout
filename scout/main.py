@@ -225,6 +225,9 @@ def run():
             label, action = "STREAM", "Claim" if waivers else "Add"
             if gms:
                 rs.insert(0, f"{gms} games left this week" + (f", {empty} into empty slots" if empty else ""))
+        # Heat should agree with the evidence: discount hot finishing the projection can't fully absorb.
+        if fin["diff"] is not None and fin["diff"] >= 1.5 and label != "STASH":
+            v *= 0.85
         if v <= 0:
             continue
         consider(p, label, action, v, rs, {"drop": drop, "week_games": gms, "waivers": waivers,
